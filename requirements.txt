@@ -1,11 +1,10 @@
+# Inference-only deps for the web app (Vercel serverless must stay < 500 MB).
+# Training deps (pandas, xgboost) live in requirements-train.txt.
 Flask==3.0.3
-pandas==2.2.2
 numpy==1.26.4
-scikit-learn==1.5.1
 scipy==1.14.0
+scikit-learn==1.5.1
+joblib==1.4.2
 requests==2.32.3
 beautifulsoup4==4.12.3
-joblib==1.4.2
-xgboost==2.1.1
 python-whois==0.9.5
-gunicorn==22.0.0

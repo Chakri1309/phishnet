@@ -10,11 +10,16 @@ Interactive Python ML project: train 3 classifiers on the **UCI Phishing Website
 
 ## 🚀 Quickstart
 ```bash
-cd phishing-detector
-pip install -r requirements.txt
+pip install -r requirements.txt   # web app only (slim, deploy-safe)
+pip install -r requirements-train.txt  # + pandas/xgboost, only if retraining
 python train.py      # downloads UCI data, trains, saves models/
 python app.py        # → http://127.0.0.1:5000
 ```
+
+## ☁️ Deploy (Vercel)
+Import the repo in Vercel — no extra config needed (`vercel.json` routes
+everything to the Flask app in `api/index.py`). `requirements.txt` is
+inference-only so the serverless bundle stays under Vercel's 500 MB limit.
 
 ## 🧠 Results (same 80/20 split, 2,211 test sites — `python train_advanced.py`)
 | Model | Acc | Prec | Rec | F1 |

@@ -1,0 +1,5 @@
+# Full training environment: app deps + model-training deps.
+# Install with: pip install -r requirements-train.txt
+-r requirements.txt
+pandas==2.2.2
+xgboost==2.1.1
