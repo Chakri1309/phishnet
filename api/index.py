@@ -12,28 +12,53 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from app import app as flask_app  # noqa: E402
 
 
+@flask_app.get("/__vercel_debug")
+def __vercel_debug():
+    """Temporary diagnostic: shows exactly what path Vercel hands Flask."""
+    from flask import request
+
+    env = request.environ
+    return {
+        "path": request.path,
+        "script_root": request.script_root,
+        "PATH_INFO": env.get("PATH_INFO"),
+        "REQUEST_URI": env.get("REQUEST_URI"),
+        "SCRIPT_NAME": env.get("SCRIPT_NAME"),
+        "HTTP_X_VERCEL_REWRITE": env.get("HTTP_X_VERCEL_REWRITE"),
+    }
+
+
 class _VercelPathFix:
-    """WSGI middleware: Vercel invokes this file at its own path, and the
-    rewritten destination (/api/index.py) can leak into PATH_INFO. Flask
-    then matches no route and returns its "Not Found" page. Stripping the
-    prefix fixes routing on Vercel while leaving local `python app.py`
-    behaviour untouched.
+    """WSGI middleware for Vercel routing quirks.
+
+    1. Vercel invokes this file at its own path, and the rewritten
+       destination (/api/index.py) can leak into PATH_INFO. Flask then
+       matches no route and returns its "Not Found" page.
+    2. Single-page-app fallback: any path that is not the homepage, an
+       API route, a static asset, or the debug route serves the homepage
+       instead of a bare 404.
+    Local `python app.py` behaviour is untouched (paths there are clean).
     """
 
     PREFIXES = ("/api/index.py", "/api/index")
+    PASSTHROUGH = ("/api/", "/static/", "/__vercel_debug")
 
     def __init__(self, wsgi_app):
         self.wsgi_app = wsgi_app
 
     def __call__(self, environ, start_response):
         path = environ.get("PATH_INFO") or "/"
+        print(f"[phishnet] incoming PATH_INFO={path!r}", flush=True)
         for prefix in self.PREFIXES:
             if path == prefix:
-                environ["PATH_INFO"] = "/"
+                path = "/"
                 break
             if path.startswith(prefix + "/"):
-                environ["PATH_INFO"] = path[len(prefix):]
+                path = path[len(prefix):]
                 break
+        if path != "/" and not path.startswith(self.PASSTHROUGH):
+            path = "/"
+        environ["PATH_INFO"] = path
         return self.wsgi_app(environ, start_response)
 
 
