@@ -17,9 +17,10 @@ python app.py        # → http://127.0.0.1:5000
 ```
 
 ## ☁️ Deploy (Vercel)
-Import the repo in Vercel — no extra config needed (`vercel.json` routes
-everything to the Flask app in `api/index.py`). `requirements.txt` is
-inference-only so the serverless bundle stays under Vercel's 500 MB limit.
+Import the repo in Vercel — zero config needed. Vercel auto-detects the
+Flask `app` in `app.py` and routes every request to it. `requirements.txt`
+is inference-only so the serverless bundle stays under Vercel's 500 MB
+limit, and `public/` mirrors `static/` so assets serve from the CDN.
 
 ## 🧠 Results (same 80/20 split, 2,211 test sites — `python train_advanced.py`)
 | Model | Acc | Prec | Rec | F1 |
