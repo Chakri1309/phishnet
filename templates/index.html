@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PhishNet — Machine-Learning Phishing Detection</title>
+<meta name="description" content="PhishNet extracts 30 forensic signals from any URL and gives a plain-English phishing verdict. Built with Flask, scikit-learn and XGBoost.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 4l21 8.5V32c0 13.5-9.2 22.8-21 27-11.8-4.2-21-13.5-21-27V12.5z' fill='%2304020b' stroke='%23e8d4ff' stroke-width='5' stroke-linejoin='round'/%3E%3Ccircle cx='32' cy='19' r='4' fill='none' stroke='%23c98bff' stroke-width='4'/%3E%3Cpath d='M32 24v14a8.5 8.5 0 0 0 17 0v-5' fill='none' stroke='%23c98bff' stroke-width='5' stroke-linecap='round'/%3E%3Cpath d='M49 33l-6 2.6' stroke='%23c98bff' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- ================= NEURA-STYLE HERO ================= -->
+<section class="n-hero" aria-label="PhishNet phishing detection">
+  <canvas id="starburst" class="n-stars" aria-hidden="true"></canvas>
+  <div class="n-lines" aria-hidden="true"></div>
+
+  <nav class="n-nav n-phase" data-phase="nav" aria-label="Primary">
+    <a class="n-brand" href="#top" aria-label="PhishNet home">
+      <svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 4l21 8.5V32c0 13.5-9.2 22.8-21 27-11.8-4.2-21-13.5-21-27V12.5z" fill="rgba(201,139,255,.08)" stroke="#e8d4ff" stroke-width="4.5" stroke-linejoin="round"/><circle cx="32" cy="19" r="3.2" fill="none" stroke="#c98bff" stroke-width="3.4"/><path d="M32 23.5V38a8.5 8.5 0 0 0 17 0v-5" fill="none" stroke="#c98bff" stroke-width="4.6" stroke-linecap="round"/><path d="M49 33l-6 2.6" fill="none" stroke="#c98bff" stroke-width="3.6" stroke-linecap="round"/></svg>
+      <span>PhishNet</span>
+    </a>
+    <ul class="n-links">
+      <li><a href="#scanner">// Scanner</a></li>
+      <li><a href="#models">// Models</a></li>
+      <li><a href="#bulk">// Bulk check</a></li>
+      <li><a href="#quiz">// Quiz</a></li>
+    </ul>
+    <div class="n-actions">
+      <a href="#how" class="btn-ghost">How it works</a>
+      <a href="#scanner" class="btn-primary">Scan now</a>
+    </div>
+    <button id="menuBtn" class="n-menu" aria-label="Open menu" aria-expanded="false">
+      <img src="{{ url_for('static', filename='neura/nav-menu.svg') }}" alt="" width="24" height="24">
+    </button>
+  </nav>
+  <div id="mobileMenu" class="n-mobile hidden">
+    <a href="#scanner">// Scanner</a><a href="#models">// Models</a>
+    <a href="#bulk">// Bulk check</a><a href="#quiz">// Quiz</a><a href="#how">// How it works</a>
+  </div>
+
+  <div class="n-body">
+    <div class="n-visual" aria-hidden="true">
+      <img class="n-thunder" src="{{ url_for('static', filename='neura/thunder-mask.png') }}" alt="">
+      <canvas id="bolt" class="n-bolt"></canvas>
+      <div class="n-orb">
+        <img class="n-halo" src="{{ url_for('static', filename='neura/mask.png') }}" alt="">
+        <img class="n-circle" src="{{ url_for('static', filename='neura/circle.png') }}" alt="">
+      </div>
+    </div>
+
+    <div class="n-content">
+      <p class="n-eyebrow n-phase" data-phase="headline">Machine-learning phishing detection</p>
+      <h1 class="n-title" data-roll>Every phish lands<br>in the net.</h1>
+      <p class="n-sub n-phase" data-phase="content">Paste any suspicious link and PhishNet pulls it apart across <b>30 forensic signals</b> — spelling tricks, page forensics, domain history — then tells you in plain language exactly why it doesn&rsquo;t trust it.</p>
+      <div class="n-ctas n-phase" data-phase="content">
+        <a href="#scanner" class="btn-primary btn-lg">Scan a URL</a>
+        <a href="#how" class="btn-ghost btn-lg">How it scores</a>
+      </div>
+      <div class="n-proof n-phase" data-phase="content">
+        <div><b data-count="{{ metrics.models[metrics.best_model].accuracy*100 }}" data-dec="1">0</b><span>% hold-out accuracy</span></div>
+        <div><b data-count="{{ metrics.n_train + metrics.n_test }}">0</b><span>sites trained on</span></div>
+        <div><b data-count="30" data-dec="0">0</b><span>signals per scan</span></div>
+      </div>
+      <aside class="n-callouts n-phase" data-phase="content" aria-label="Highlights">
+        <p>Trained on 11,055<br>real websites</p>
+        <p>Nine models,<br>one champion</p>
+      </aside>
+    </div>
+  </div>
+
+  <div class="n-bottom" aria-hidden="true">
+    <img class="n-glow" src="{{ url_for('static', filename='neura/bottom-glow.png') }}" alt="">
+    <div class="n-dust"><canvas id="stardust"></canvas></div>
+  </div>
+</section>
+
+<div class="ticker" aria-hidden="true"><div class="ticker-track">
+  <span>11,055 sites in training</span><i>✦</i><span>97.7% hold-out accuracy</span><i>✦</i><span>30 signals per URL</span><i>✦</i><span>9 models benchmarked</span><i>✦</i><span>Open training pipeline</span><i>✦</i>
+  <span>11,055 sites in training</span><i>✦</i><span>97.7% hold-out accuracy</span><i>✦</i><span>30 signals per URL</span><i>✦</i><span>9 models benchmarked</span><i>✦</i><span>Open training pipeline</span><i>✦</i>
+</div></div>
+
+<main id="top">
+<!-- ============ SCANNER ============ -->
+<section id="scanner" class="panel reveal">
+  <div class="sec-head"><p class="eyebrow">Live scanner</p><h2>Scan a <em>link</em></h2>
+  <p class="muted">Paste a URL from an email, message, or ad. PhishNet takes it apart in seconds — and shows its work.</p></div>
+  <div class="scan-row">
+    <div class="input-wrap">
+      <svg width="17" height="17" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6.5 9.5a3.5 3.5 0 0 0 5 0l2-2a3.54 3.54 0 0 0-5-5l-1 1M9.5 6.5a3.5 3.5 0 0 0-5 0l-2 2a3.54 3.54 0 0 0 5 5l1-1" stroke="#8b96b5" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <input id="urlInput" type="text" autocomplete="off" spellcheck="false" placeholder="Paste a URL to analyse…" aria-label="URL to analyse">
+    </div>
+    <button id="scanBtn" class="btn-primary btn-lg" onclick="scanUrl()">Analyse</button>
+  </div>
+  <div class="demos">
+    <span>Try one:</span>
+    <button class="demo" onclick="demo('https://www.google.com')"><span class="sdot safe"></span>google.com<em>legitimate</em></button>
+    <button class="demo" onclick="demo('https://www.paypal.com/signin')"><span class="sdot safe"></span>paypal.com<em>legitimate</em></button>
+    <button class="demo" onclick="demo('http://paypal-secure-login-confirm.tinyurl.com@192.168.0.1//login')"><span class="sdot danger"></span>fake paypal login<em>phishing</em></button>
+    <button class="demo" onclick="demo('http://free-iphone-winner-https-secure-login.com@bit.ly/prize')"><span class="sdot danger"></span>prize scam<em>phishing</em></button>
+  </div>
+  <div id="loader" class="loader hidden" role="status"><div class="net-spinner" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div><p>Extracting 30 features · consulting the ensemble…</p></div>
+
+  <div id="result" class="hidden">
+    <div class="result-grid">
+      <div class="gauge-card">
+        <p class="card-label">Risk score</p>
+        <svg viewBox="0 0 200 120" class="gauge" role="img" aria-label="Risk gauge">
+          <path d="M20,110 A80,80 0 0,1 180,110" fill="none" stroke="rgba(255,255,255,.09)" stroke-width="15" stroke-linecap="round"/>
+          <path id="gaugeArc" d="M20,110 A80,80 0 0,1 180,110" fill="none" stroke="#3ecf8e" stroke-width="15" stroke-linecap="round" stroke-dasharray="251" stroke-dashoffset="251"/>
+          <text id="gaugeText" x="100" y="96" text-anchor="middle" class="gauge-text">0%</text>
+        </svg>
+        <div id="verdictBadge" class="verdict">—</div>
+        <p id="resultUrl" class="url-line"></p>
+        <div class="counts"><span id="cPhish">0 phishy</span><span id="cSusp">0 unclear</span><span id="cLegit">0 clean</span></div>
+        <div class="prob-bars">
+          <div><label>Phishing <b id="pPhish">0%</b></label><div class="bar"><i id="bPhish"></i></div></div>
+          <div><label>Legitimate <b id="pLegit">0%</b></label><div class="bar bar-safe"><i id="bLegit"></i></div></div>
+        </div>
+        <button id="copyBtn" class="btn-ghost sm" onclick="copyReport()">Copy report</button>
+      </div>
+      <div class="detail-card">
+        <div class="tabs" role="tablist">
+          <button class="tab active" onclick="tab(event,'signals')">Key signals</button>
+          <button class="tab" onclick="tab(event,'allfeat')">All 30 features</button>
+          <button class="tab" onclick="tab(event,'advice')">What to do</button>
+        </div>
+        <div id="tab-signals" class="tabpanel"><ul id="signalList" class="signals"></ul></div>
+        <div id="tab-allfeat" class="tabpanel hidden">
+          <canvas id="featChart" height="260"></canvas>
+          <div id="featTable" class="feat-table"></div>
+        </div>
+        <div id="tab-advice" class="tabpanel hidden"><div id="adviceBox"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MODELS ============ -->
+<section id="models" class="panel reveal">
+  <div class="sec-head"><p class="eyebrow">Model arena</p><h2>Benchmarked, <em>not cherry-picked</em></h2>
+  <p class="muted">Nine models, one shared split of {{ metrics.n_train + metrics.n_test }} real websites (80/20, phishing = positive class). Champion: {{ metrics.best_model }}. Select a metric to re-rank.</p></div>
+  <div class="metric-toggle" role="group" aria-label="Ranking metric">
+    <button class="mt active" data-m="accuracy">Accuracy</button>
+    <button class="mt" data-m="precision">Precision</button>
+    <button class="mt" data-m="recall">Recall</button>
+    <button class="mt" data-m="f1">F1-score</button>
+  </div>
+  <div class="arena-grid">
+    <div class="mini-panel"><canvas id="modelChart" height="220"></canvas><div id="modelCards" class="model-cards"></div></div>
+    <div class="mini-panel">
+      <h3>Strongest fraud signals <small>{{ metrics.best_model }}</small></h3>
+      <canvas id="impChart" height="260"></canvas>
+      <h3 style="margin-top:1.2rem">Confusion matrix <small>{{ metrics.best_model }}</small></h3>
+      <div id="cmBox" class="cm"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ BULK ============ -->
+<section id="bulk" class="panel reveal">
+  <div class="sec-head"><p class="eyebrow">Bulk check</p><h2>Have a <em>whole list?</em></h2>
+  <p class="muted">Up to 20 URLs, one per line. Export the verdicts as CSV.</p></div>
+  <textarea id="bulkInput" rows="4" placeholder="https://your-bank.com/login&#10;http://free-prize-winner.tk/claim" aria-label="URLs for bulk check"></textarea>
+  <div class="row"><button class="btn-primary" onclick="bulkCheck()">Check all</button><button class="btn-ghost" onclick="downloadCSV()">Download CSV</button></div>
+  <div id="bulkResults"></div>
+</section>
+
+<!-- ============ HISTORY ============ -->
+<section id="history" class="panel reveal">
+  <div class="sec-head row-between"><div><p class="eyebrow">Logbook</p><h2>Recent <em>scans</em></h2>
+  <p class="muted">Kept only in this browser. Nothing leaves your machine except the page fetches needed for analysis.</p></div>
+  <button class="btn-ghost sm" onclick="clearHistory()">Clear</button></div>
+  <div id="historyList" class="history"><p class="muted">No scans yet — results will appear here.</p></div>
+</section>
+
+<!-- ============ QUIZ ============ -->
+<section id="quiz" class="panel reveal">
+  <div class="sec-head"><p class="eyebrow">Training ground</p><h2>Train your <em>own eye</em></h2>
+  <p class="muted">Three short rounds on the tricks phishers actually use.</p></div>
+  <div id="quizBox"></div>
+</section>
+
+<!-- ============ HOW ============ -->
+<section id="how" class="panel reveal">
+  <div class="sec-head"><p class="eyebrow">Under the hood</p><h2>What happens when you press <em>Analyse</em></h2></div>
+  <div class="steps">
+    <div class="step"><span class="n">1</span><b>Lexical sweep</b><p>Checks for @ tricks, dashes in the domain, sneaky redirects, excessive length, shorteners, and raw IP hosts — instantly, no network needed.</p></div>
+    <div class="step"><span class="n">2</span><b>Page forensics</b><p>If the page loads, PhishNet inspects its forms, iframes, favicons, link targets, and scripts that hide where links really go.</p></div>
+    <div class="step"><span class="n">3</span><b>Domain intelligence</b><p>DNS resolution, registration age, and blacklist patterns separate throwaway scam domains from established sites.</p></div>
+    <div class="step"><span class="n">4</span><b>Ensemble verdict</b><p>{{ metrics.best_model }} turns the 30 signals into a risk score — with every signal listed so you can verify the reasoning.</p></div>
+  </div>
+  <p class="muted run-line">Retrain: <code>python train_advanced.py</code> · Run: <code>python app.py</code> → http://127.0.0.1:5000</p>
+</section>
+</main>
+
+<footer>
+  <div class="foot-grid">
+    <div class="foot-brand">
+      <div class="row"><svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 4l21 8.5V32c0 13.5-9.2 22.8-21 27-11.8-4.2-21-13.5-21-27V12.5z" fill="rgba(201,139,255,.08)" stroke="#e8d4ff" stroke-width="4.5" stroke-linejoin="round"/><circle cx="32" cy="19" r="3.2" fill="none" stroke="#c98bff" stroke-width="3.4"/><path d="M32 23.5V38a8.5 8.5 0 0 0 17 0v-5" fill="none" stroke="#c98bff" stroke-width="4.6" stroke-linecap="round"/><path d="M49 33l-6 2.6" fill="none" stroke="#c98bff" stroke-width="3.6" stroke-linecap="round"/></svg><span>PhishNet</span></div>
+      <p>Machine-learning phishing detection, with its work shown.</p>
+    </div>
+    <div><b>Product</b><a href="#scanner">Scanner</a><a href="#models">Model arena</a><a href="#bulk">Bulk check</a><a href="#quiz">Quiz</a></div>
+    <div><b>Project</b><a href="#how">How it scores</a><a href="#models">Training results</a><a href="#history">Your logbook</a></div>
+  </div>
+  <div class="foot-base"><span>PhishNet · an educational ML project (UCI Phishing Websites data)</span><span>Always verify sensitive links yourself.</span></div>
+</footer>
+
+<div id="toasts" aria-live="polite"></div>
+
+<script>
+const METRICS = {{ metrics | tojson }};
+const IMPORTANCE = {{ importance | tojson }};
+</script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

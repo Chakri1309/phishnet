@@ -1,0 +1,155 @@
+{
+  "models": {
+    "Logistic Regression": {
+      "accuracy": 0.929,
+      "precision": 0.9354,
+      "recall": 0.902,
+      "f1": 0.9184,
+      "confusion_matrix": [
+        [
+          1170,
+          61
+        ],
+        [
+          96,
+          884
+        ]
+      ]
+    },
+    "Random Forest": {
+      "accuracy": 0.9742,
+      "precision": 0.9782,
+      "recall": 0.9633,
+      "f1": 0.9707,
+      "confusion_matrix": [
+        [
+          1210,
+          21
+        ],
+        [
+          36,
+          944
+        ]
+      ]
+    },
+    "XGBoost": {
+      "accuracy": 0.9701,
+      "precision": 0.9751,
+      "recall": 0.9571,
+      "f1": 0.966,
+      "confusion_matrix": [
+        [
+          1207,
+          24
+        ],
+        [
+          42,
+          938
+        ]
+      ]
+    },
+    "Random Forest (tuned)": {
+      "accuracy": 0.9765,
+      "precision": 0.9793,
+      "recall": 0.9673,
+      "f1": 0.9733,
+      "confusion_matrix": [
+        [
+          1211,
+          20
+        ],
+        [
+          32,
+          948
+        ]
+      ],
+      "cv_f1_mean": 0.959
+    },
+    "ExtraTrees (tuned)": {
+      "accuracy": 0.9765,
+      "precision": 0.9774,
+      "recall": 0.9694,
+      "f1": 0.9734,
+      "confusion_matrix": [
+        [
+          1209,
+          22
+        ],
+        [
+          30,
+          950
+        ]
+      ],
+      "cv_f1_mean": 0.9628
+    },
+    "HistGradBoost (tuned)": {
+      "accuracy": 0.9769,
+      "precision": 0.9804,
+      "recall": 0.9673,
+      "f1": 0.9738,
+      "confusion_matrix": [
+        [
+          1212,
+          19
+        ],
+        [
+          32,
+          948
+        ]
+      ],
+      "cv_f1_mean": 0.9641
+    },
+    "XGBoost (tuned)": {
+      "accuracy": 0.9765,
+      "precision": 0.9784,
+      "recall": 0.9684,
+      "f1": 0.9733,
+      "confusion_matrix": [
+        [
+          1210,
+          21
+        ],
+        [
+          31,
+          949
+        ]
+      ],
+      "cv_f1_mean": 0.9627
+    },
+    "Voting Ensemble": {
+      "accuracy": 0.9769,
+      "precision": 0.9794,
+      "recall": 0.9684,
+      "f1": 0.9738,
+      "confusion_matrix": [
+        [
+          1211,
+          20
+        ],
+        [
+          31,
+          949
+        ]
+      ]
+    },
+    "Stacking Ensemble": {
+      "accuracy": 0.9774,
+      "precision": 0.9804,
+      "recall": 0.9684,
+      "f1": 0.9743,
+      "confusion_matrix": [
+        [
+          1212,
+          19
+        ],
+        [
+          31,
+          949
+        ]
+      ]
+    }
+  },
+  "best_model": "HistGradBoost (tuned)",
+  "n_train": 8844,
+  "n_test": 2211
+}

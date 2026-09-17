@@ -1,0 +1,21 @@
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Large experiment models — not shipped (GitHub 100 MB limit).
+# The live model is models/phishing_model.pkl (compact HistGradBoost, ~3 MB).
+# Retrain the full arena any time with: python train_advanced.py
+models/stacking_ensemble.pkl
+models/voting_ensemble.pkl
+models/extratrees_tuned.pkl
+models/random_forest_tuned.pkl
+models/random_forest.pkl
+models/histgradboost_tuned.pkl
+models/xgboost_tuned.pkl
+models/xgboost.pkl
+models/logistic_regression.pkl
+models/phishing_model_backup.pkl
+
+# Local dev
+.venv/
+*.log

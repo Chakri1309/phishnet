@@ -1,0 +1,122 @@
+[
+  {
+    "feature": "URL_of_Anchor",
+    "importance": 0.2245
+  },
+  {
+    "feature": "SSLfinal_State",
+    "importance": 0.2218
+  },
+  {
+    "feature": "Prefix_Suffix",
+    "importance": 0.214
+  },
+  {
+    "feature": "SFH",
+    "importance": 0.026
+  },
+  {
+    "feature": "Shortining_Service",
+    "importance": 0.0222
+  },
+  {
+    "feature": "Iframe",
+    "importance": 0.0204
+  },
+  {
+    "feature": "RightClick",
+    "importance": 0.0187
+  },
+  {
+    "feature": "Submitting_to_email",
+    "importance": 0.0173
+  },
+  {
+    "feature": "Favicon",
+    "importance": 0.015
+  },
+  {
+    "feature": "on_mouseover",
+    "importance": 0.0149
+  },
+  {
+    "feature": "HTTPS_token",
+    "importance": 0.0147
+  },
+  {
+    "feature": "port",
+    "importance": 0.014
+  },
+  {
+    "feature": "double_slash_redirecting",
+    "importance": 0.0138
+  },
+  {
+    "feature": "popUpWidnow",
+    "importance": 0.0129
+  },
+  {
+    "feature": "web_traffic",
+    "importance": 0.0127
+  },
+  {
+    "feature": "Google_Index",
+    "importance": 0.0123
+  },
+  {
+    "feature": "Statistical_report",
+    "importance": 0.0116
+  },
+  {
+    "feature": "Abnormal_URL",
+    "importance": 0.0115
+  },
+  {
+    "feature": "URL_Length",
+    "importance": 0.0111
+  },
+  {
+    "feature": "Links_in_tags",
+    "importance": 0.01
+  },
+  {
+    "feature": "Links_pointing_to_page",
+    "importance": 0.0097
+  },
+  {
+    "feature": "Redirect",
+    "importance": 0.0089
+  },
+  {
+    "feature": "having_Sub_Domain",
+    "importance": 0.0086
+  },
+  {
+    "feature": "DNSRecord",
+    "importance": 0.0085
+  },
+  {
+    "feature": "having_IP_Address",
+    "importance": 0.0084
+  },
+  {
+    "feature": "Request_URL",
+    "importance": 0.0082
+  },
+  {
+    "feature": "having_At_Symbol",
+    "importance": 0.0079
+  },
+  {
+    "feature": "age_of_domain",
+    "importance": 0.0072
+  },
+  {
+    "feature": "Page_Rank",
+    "importance": 0.0071
+  },
+  {
+    "feature": "Domain_registeration_length",
+    "importance": 0.0064
+  }
+]
